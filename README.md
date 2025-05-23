@@ -7,4 +7,6 @@ project 1 in chapter 3 of the textbook. A starter skeleton program
 
 Read on the course website for more details and submission instructions. Complete all the required features and remove "TODO"s from the source code. It's OK to add 
 additional helper functions but don't change the file name. 
-# shell_proj  to run ./prog2 which should prompt a shell.  if that doesnt work build the file using g++ prog.cpp -o fileName  
+
+
+#School Project for os class
