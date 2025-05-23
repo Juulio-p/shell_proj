@@ -1,0 +1,168 @@
+
+/**
+ * Assignment 2: Simple UNIX Shell
+ * @file pcbtable.h
+ * @author Julio C. Prudencio
+ * @brief This is the main function of a simple UNIX Shell. You may add additional functions in this file for your implementation
+ * @version 0.1
+ */
+// You must complete the all parts marked as "TODO". Delete "TODO" after you are done.
+// Remember to add sufficient and clear comments to your code
+
+#include <stdio.h>
+#include <unistd.h>
+#include <iostream>
+#include <fcntl.h>
+#include <cstring>
+#include <sys/wait.h>
+
+using namespace std;
+
+#define MAX_LINE 80 // The maximum length command
+/**
+ * @brief parse out the command and arguments from the input command separated by spaces
+ *
+ * @param command
+ * @param args
+ * @return int
+ */
+
+/*
+void addHist(const char *command, char history[][MAX_LINE], int &history_index)
+{
+    strncpy(history[history_index], command, MAX_LINE);
+    history_index = (history_index + 1) % 10; // mod 10 makes it circular which avoids infinite loop
+}
+
+void print_history(const char history[][MAX_LINE], int history_index)
+{
+    int start = (history_index + 1) % 10;
+    int end = history_index;
+
+    for (int i = start; i != end; i = (i + 1) % 10)
+    {
+        cout << "Command " << i << ": " << history[i] << endl;
+    }
+}
+
+*/
+
+/*
+void retrieveCommand( ){
+    return 0;
+}
+void PrintLastCommands(){
+    return 0;
+}
+suggested functions for the hyistory feature
+*/
+
+int parse_command(char command[], char *args[])
+{
+    // TODO: implement this function
+    char *separator = " ", *parsed;
+    int index = 0;
+    // counting the indexes
+    parsed = strtok(command, separator);
+    // sequence of calls to this function split str into tokens, which are
+    // sequences of contiguous characters separated by any of the characters that are part of delimiters.
+    // which is separator in this case
+    while (parsed != NULL)
+    {
+        args[index] = strdup(parsed);
+        index++;
+        parsed = strtok(NULL, separator);
+    }
+    args[index] = NULL;
+
+    return index;
+}
+
+// TODO: Add additional functions if you need
+
+/**
+ * @brief The main function of a simple UNIX Shell. You may add additional functions in this file for your implementation
+ * @param argc The number of arguments
+ * @param argv The array of arguments
+ * @return The exit status of the program
+ */
+int main(int argc, char *argv[])
+{
+    char command[MAX_LINE];       // the command that was entered
+    char *args[MAX_LINE / 2 + 1]; // hold parsed out command line arguments
+    int should_run = 1;           /* flag to determine when to exit program */
+    pid_t child_pid;
+    int fd[2];                  // for pipeline, file descript
+    char history[10][MAX_LINE]; // for hist caommand
+    int hist_index = 0;
+
+    // TODO: Add additional variables for the implementation.
+    while (should_run)
+    {
+        printf("osh>");
+        fflush(stdout);
+        // Read the input command
+        fgets(command, MAX_LINE, stdin);
+       
+        int background = 0;
+        int i;
+        for (i = 0; args[i] != NULL; i++)
+        {
+            if (strcmp(args[i], "&") == 0)
+            {
+                background = 1;
+                args[i] = NULL; // Remove "&" from the arguments
+                break;
+            }
+        }
+
+        // Parse the input command
+        int num_args = parse_command(command, args);
+        printf("%d%s", num_args, " \n");
+
+        for (int i = 0; args[i] != NULL; i++)
+        {
+            printf("args[%d]: %s\n", i, args[i]);
+            // this is just for understanding what i was doing
+            if (strcmp(args[i], "exit") == 0)
+            {
+                printf("this ran");
+                should_run = 0;
+                break;
+            }
+        }
+
+        // addHist(command, history, hist_index); // needa digure out how to do this later
+
+        // TODO: Add your code for the implementation
+        /**
+         * After reading user input, the steps are:
+         * (1) fork a child process using fork()
+         * (2) the child process will invoke execvp()
+         * (3) parent will invoke wait() unless command included &
+         */
+
+        // print_history(history, hist_index);
+        child_pid =fork()
+
+        if (child_pid == 0)
+        {
+            execvp(args[0], args);
+            perror("execvp");   // Print an error message if execvp fails
+            exit(EXIT_FAILURE); // Exit the child process in case of failure
+        }
+        else
+        {
+            waitpid(child_pid, NULL, 0); // Wait for the child process to exit
+
+            // for (int i = 0; args[i] != NULL; i++)
+            //{
+            //  if (strcmp(args[i], "!!") == 0)
+            //  {
+            // print_history(history, hist_index);
+            //}
+            //}
+        }
+    }
+    return 0;
+}
